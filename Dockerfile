@@ -29,4 +29,4 @@ COPY requirements.txt .
 RUN pip3 install -r requirements.txt
 #COPY ./src .
 
-CMD ["python3.6", "main.py"]
+CMD ["python3.6", "/app/mentioner"]

@@ -3,4 +3,5 @@ services:
   app:
     build: .
     volumes:
-      - ./src:/app:cached
+      - .:/app:cached
+    network_mode: host
