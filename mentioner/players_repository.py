@@ -1,60 +1,54 @@
 from api_client import api_client, ApiPlayer
 import typing
-import json
-import settings
 import os
 import logging
+import pickle
 
 
 class PlayersRepository(object):
-    players = list()
-    indexes = {
-        "full_name": {}
+    __state = {
+        "players": list(),
+        "indexes": {
+            "full_name": {}
+        }
+
     }
-    cache_file = '{}/players.json'.format(settings.CACHE_DIR)
 
-    def __init__(self):
-        self.load_players()
-
-    def load_players(self):
-        if not os.path.exists(self.cache_file):
-            self.download_players()
-            self.save_cache_file()
-        else:
-            self.load_cache_file()
-        self.create_indexes()
-
-    def download_players(self):
-        logging.info("Downloading players...")
-        for player in api_client.all_players():
-            self.players.append(player)
-
-    def save_cache_file(self):
-        with open(self.cache_file, 'w') as f:
-            json_players = list(map(lambda x: x.to_dict(), self.players))
-            json.dump(json_players, f)
-
-    def load_cache_file(self):
-        if not os.path.exists(self.cache_file):
-            raise Exception("File {} does not exist".format(self.cache_file))
-
-        with open(self.cache_file, 'r') as outfile:
-            self.players = list(map(lambda x: ApiPlayer.from_dict(x), json.load(outfile)))
-
-    def create_indexes(self):
-        for i, player in enumerate(self.players):
-            full_name = "{} {}".format(player.first_name, player.last_name)
-
-            if full_name in self.indexes["full_name"]:
-                self.indexes["full_name"][full_name].append(i)
-            else:
-                self.indexes["full_name"][full_name] = [i]
+    def __init__(self, state_file: str):
+        self.__state_file = state_file
+        self.__load_state()
 
     def find_by_full_name(self, full_name: str) -> typing.List[ApiPlayer]:
-        if full_name in self.indexes["full_name"]:
-            return list(map(lambda i: self.players[i], self.indexes["full_name"][full_name]))
+        if full_name in self.__state['indexes']["full_name"]:
+            return list(map(lambda i: self.__state['players'][i], self.__state['indexes']["full_name"][full_name]))
         else:
             return list()
 
+    def __download_players(self):
+        logging.info("Downloading players...")
+        for player in api_client.all_players():
+            self.__state['players'].append(player)
+        self.__create_indexes()
 
-players_repository = PlayersRepository()
+    def __create_indexes(self):
+        for i, player in enumerate(self.__state['players']):
+            full_name = "{} {}".format(player.first_name, player.last_name)
+
+            if full_name in self.__state['indexes']["full_name"]:
+                self.__state['indexes']["full_name"][full_name].append(i)
+            else:
+                self.__state['indexes']["full_name"][full_name] = [i]
+
+    def save_state(self):
+        with open(self.__state_file, 'wb') as f:
+            pickle.dump(self.__state, f)
+
+    def __load_state(self):
+        if not os.path.exists(self.__state_file):
+            self.__download_players()
+            self.save_state()
+            return
+
+        with open(self.__state_file, 'rb') as f:
+            self.__state = pickle.load(f)
+

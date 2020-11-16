@@ -123,7 +123,7 @@ class ApiClient(object):
             "commentId": comment_id,
             "playerId": player_id,
             "startsAt": starts_at,
-            "ends_at": ends_at
+            "endsAt": ends_at
         })
         return ApiMention.from_data(r)
 

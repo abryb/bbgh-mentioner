@@ -1,47 +1,57 @@
-import morfeusz2
+import typing
+from morfeusz_wrapper import MorfeuszWrapper
+
+X = typing.TypeVar('X')
+
+
+class TextFinderResult(typing.Generic[X]):
+    def __init__(self, result: X, starts_at: int, ends_at: int):
+        self.result = result
+        self.starts_at = starts_at
+        self.ends_at = ends_at
+
+
+class FullName(typing.NamedTuple):
+    first_name: str
+    last_name: str
+
+    def full_name(self):
+        return "{} {}".format(self.first_name, self.last_name)
 
 
 class TextFinder(object):
-    def __init__(self, morf: morfeusz2.Morfeusz):
-        self.morf = morf
+    def __init__(self, morfeusz_wrapper: MorfeuszWrapper):
+        self.morfeusz = morfeusz_wrapper
 
-    def find_full_names(self, text: str) -> set:
-        """
-        :return {('name', 'lastName'), ...}
-        """
-        result = set()
-        result = result.union(self._find_first_and_last_name_pairs(text))
-        return result
-
-
-    def find_last_names(self, text: str) -> set:
-        """
-        :return {'name', ...}
-        """
-        result = set()
-        analysis = self.morf.analyse(text)
-        for interpretation in analysis:
-            if u'nazwisko' in interpretation[2][3]:
-                result.add((interpretation[2][1].split(":")[0]))
-        return result
-
-    def _find_first_and_last_name_pairs(self, text: str) -> set:
-        analysis = self.morf.analyse(text)
-        result = set()
+    def find_full_names(self, text: str) -> typing.List[TextFinderResult[FullName]]:
+        result = list()
         last_name_index = -1
-        first_name = None
-        for interpretation in analysis:
-            if last_name_index == interpretation[0]:
-                if u'nazwisko' in interpretation[2][3]:
-                    result.add((first_name, interpretation[2][1].split(":")[0]))
+        first_name_interpretation = None
+        for interpretation in self.morfeusz.analyse(text):
+            if last_name_index == interpretation.range[0]:
+                if u'nazwisko' in interpretation.prevalence:
+                    last_name = interpretation.lemma.lexeme
+                    first_name = first_name_interpretation.lemma.lexeme
+                    result.append(
+                        TextFinderResult(
+                            FullName(first_name, last_name),
+                            first_name_interpretation.starts_at,
+                            interpretation.ends_at
+                        )
+                    )
                     last_name_index = -1
-                    first_name = None
+                    first_name_interpretation = None
                     continue
-            if u'imię' in interpretation[2][3]:
-                last_name_index = interpretation[0] + 1
-                first_name = interpretation[2][1].split(":")[0]
-
+            if u'imię' in interpretation.prevalence:
+                last_name_index = interpretation.range[0] + 1
+                first_name_interpretation = interpretation
         return result
 
-
-finder = TextFinder(morfeusz2.Morfeusz())
+    def find_last_names(self, text: str) -> typing.List[TextFinderResult[str]]:
+        result = list()
+        for interpretation in self.morfeusz.analyse(text):
+            if u'nazwisko' in interpretation.prevalence:
+                result.append(
+                    TextFinderResult(interpretation.lemma.lexeme, interpretation.starts_at, interpretation.ends_at)
+                )
+        return result
