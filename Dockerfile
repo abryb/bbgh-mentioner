@@ -32,5 +32,4 @@ RUN pip3 install -r requirements.txt
 
 ENV PATH="/app/bin:${PATH}"
 
-
 CMD ["mentioner", "--help"]

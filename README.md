@@ -1,13 +1,13 @@
 ##### Usage
 
 ```shell script
+# build docker container
 docker-compose build
 cp .env.dist .env
 # change .env file if needed, look at it
-# build docker container
-docker-compose build
 # run mentioner help
-docker-compose run --rm app --help
+docker-compose run --rm app
+docker-compose run --rm app mentioner --help
 # download players
 docker-compose run --rm app mentioner download_players
 # create all mentions
