@@ -13,7 +13,9 @@ RUN apt-get update \
 RUN apt-key add /tmp/sgjp.gpg.key \
     && apt-add-repository http://download.sgjp.pl/apt/ubuntu \
     && apt-get update \
-    && apt-get install -y --no-install-recommends libmorfeusz2-dev python3-morfeusz2
+    && apt-get install -y --no-install-recommends libmorfeusz2-dev python3-morfeusz2 \
+    && update-alternatives --install /usr/bin/python python /usr/bin/python3.6 1
+
 
 # locale
 RUN apt-get install -y --no-install-recommends locales && locale-gen en_US.UTF-8
@@ -27,6 +29,8 @@ WORKDIR /app
 
 COPY requirements.txt .
 RUN pip3 install -r requirements.txt
-#COPY ./src .
 
-CMD ["python3.6", "/app/mentioner"]
+ENV PATH="/app/bin:${PATH}"
+
+
+CMD ["mentioner", "--help"]

@@ -1,6 +1,6 @@
 import unittest
 
-from morfeusz_wrapper import morfeusz_wrapper
+from mentioner.morfeusz import morfeusz_wrapper
 
 
 class MorfeuszTestCase(unittest.TestCase):

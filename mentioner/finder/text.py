@@ -1,5 +1,5 @@
 import typing
-from morfeusz_wrapper import MorfeuszWrapper
+from mentioner.morfeusz import MorfeuszWrapper
 
 X = typing.TypeVar('X')
 

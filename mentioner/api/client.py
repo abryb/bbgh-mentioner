@@ -1,8 +1,5 @@
 import typing
-from typing import NamedTuple
-
 import requests
-import settings
 
 X = typing.TypeVar('X')
 
@@ -21,7 +18,7 @@ class ApiError(ConnectionError):
     pass
 
 
-class ApiArticle(NamedTuple):
+class ApiArticle(typing.NamedTuple):
     id: int
     content: str
 
@@ -33,7 +30,7 @@ class ApiArticle(NamedTuple):
         )
 
 
-class ApiComment(NamedTuple):
+class ApiComment(typing.NamedTuple):
     id: int
     content: str
 
@@ -45,7 +42,7 @@ class ApiComment(NamedTuple):
         )
 
 
-class ApiPlayer(NamedTuple):
+class ApiPlayer(typing.NamedTuple):
     id: int
     first_name: str
     last_name: str
@@ -150,8 +147,4 @@ class ApiClient(object):
             count = items["numberOfElements"]
             for item in items['content']:
                 yield item
-
-
-api_client = ApiClient(settings.BBGH_BACKEND_URL)
-
 

@@ -1,8 +1,8 @@
-import typing
-from api_client import ApiArticle, ApiComment
-from text_finder import TextFinder
-from players_repository import PlayersRepository
+from mentioner.api.client import ApiArticle, ApiComment
+from mentioner.finder.text import TextFinder
+from mentioner.repository.players import PlayersRepository
 from unidecode import unidecode
+import typing
 
 
 class Mention(typing.NamedTuple):

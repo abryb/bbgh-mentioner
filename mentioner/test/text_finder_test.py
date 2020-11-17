@@ -1,6 +1,9 @@
 import unittest
 
-from text_finder import finder
+from mentioner.finder import TextFinder
+from mentioner.morfeusz import morfeusz_wrapper
+
+finder = TextFinder(morfeusz_wrapper)
 
 
 class FinderTestCase(unittest.TestCase):
