@@ -11,9 +11,11 @@ docker-compose run --rm app mentioner --help
 # download players
 docker-compose run --rm app mentioner download_players
 # create all mentions
-docker-compose run --rm app mentioner create_all_mentions
+docker-compose run --rm app mentioner create_mentions
 # state info
 docker-compose run --rm app mentioner state_info
+# clear state
+docker-compose run --rm app mentioner clear_state
 ```
 
 ##### Interactive usage
@@ -24,7 +26,8 @@ docker-compose run --rm app python
 ```python
 import mentioner
 app = mentioner.create_app()
-
+app.download_players()
+app.create_mentions()
 ```
 
 

@@ -16,10 +16,10 @@ def download_players():
         print("\nAborted. Bye.")
 
 
-def create_all_mentions():
+def create_mentions():
     try:
         print("Creating all mentions")
-        app.create_all_mentions()
+        app.create_mentions()
         app.state.save()
         print("Done")
     except KeyboardInterrupt:
@@ -30,13 +30,24 @@ def create_all_mentions():
 
 def state_info():
     print("Number of players: {}".format(len(app.state.players)))
-    print("Last checked article id: {}".format(app.state.create_all_mentions_last_article_id))
+    print("Last checked article update date: {}".format(app.state.create_mentions_last_checked))
+
+
+def clear_state():
+    try:
+        print("Clearing app state...")
+        app.clear_state()
+        app.state.save()
+        print("Done")
+    except KeyboardInterrupt:
+        print("\nAborted. Bye.")
 
 
 actions = {
     "download_players": download_players,
-    "create_all_mentions": create_all_mentions,
-    "state_info": state_info
+    "create_mentions": create_mentions,
+    "state_info": state_info,
+    "clear_state": clear_state
 }
 
 
