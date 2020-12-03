@@ -4,4 +4,4 @@ services:
     build: .
     volumes:
       - .:/app:cached
-    network_mode: host
+    command: ['cron', '-f']

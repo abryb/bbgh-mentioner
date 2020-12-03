@@ -16,12 +16,17 @@ RUN apt-key add /tmp/sgjp.gpg.key \
     && apt-get install -y --no-install-recommends libmorfeusz2-dev python3-morfeusz2 \
     && update-alternatives --install /usr/bin/python python /usr/bin/python3.6 1
 
-
 # locale
 RUN apt-get install -y --no-install-recommends locales && locale-gen en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
+
+COPY crontab /etc/cron.d/mentioner
+RUN apt-get -y --no-install-recommends install cron \
+    && chmod 0644 /etc/cron.d/mentioner \
+    && crontab /etc/cron.d/mentioner \
+    && touch /var/log/cron.log
 
 RUN rm -rf  /tmp/* && apt-get clean && rm -rf /var/lib/apt/lists/
 

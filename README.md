@@ -1,10 +1,13 @@
-##### Usage
+#### Running on production
+It runs single container with cron jobs defined in [crontab](crontab)
+```shell script
+docker-compose up --build -d
+```
 
+#### Usage manually 
 ```shell script
 # build docker container
 docker-compose build
-cp .env.dist .env
-# change .env file if needed, look at it
 # run mentioner help
 docker-compose run --rm app
 docker-compose run --rm app mentioner --help
@@ -16,9 +19,11 @@ docker-compose run --rm app mentioner create_mentions
 docker-compose run --rm app mentioner state_info
 # clear state
 docker-compose run --rm app mentioner clear_state
+# run same command as running in cron job
+docker-compose run --rm app mentioner run
 ```
 
-##### Interactive usage
+#### Interactive usage
 ```shell script
 docker-compose run --rm app python
 ```
@@ -31,7 +36,6 @@ app.create_mentions()
 ```
 
 
-##### Development
+#### Development
 
 If using PyCharm follow https://www.jetbrains.com/help/pycharm/using-docker-compose-as-a-remote-interpreter.html#tw
-

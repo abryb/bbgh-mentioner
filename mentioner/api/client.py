@@ -23,16 +23,19 @@ class ApiArticle(typing.NamedTuple):
     id: int
     content: str
     creation_date: datetime.datetime
-    update_date: datetime.datetime
+    updated_at: datetime.datetime
 
     @staticmethod
     def from_data(data: dict) -> 'ApiArticle':
+        if data['updatedAt']:
+            updated_at = datetime.datetime.strptime(data['updatedAt'], '%Y-%m-%dT%H:%M:%S')
+        else:
+            updated_at = datetime.datetime.fromtimestamp(0)
         return ApiArticle(
             id=data['id'],
             content=data['content'],
             creation_date=datetime.datetime.strptime(data['creationDate'], '%Y-%m-%dT%H:%M:%S'),
-            # todo change for updateDate when it comes
-            update_date=datetime.datetime.strptime(data['creationDate'], '%Y-%m-%dT%H:%M:%S')
+            updated_at=updated_at
         )
 
 
@@ -101,8 +104,9 @@ class ApiClient(object):
         data = self._get_list('/api/articles', {'page': page, 'size': size, 'sort': sort})
         return ListResponse.from_data(data, lambda x: ApiArticle.from_data(x))
 
-    def all_articles(self, sort=None) -> typing.Iterator[ApiArticle]:
-        for item in self._all_items('/api/articles', sort=sort):
+    def all_articles_updated_after(self, updated_after: datetime.datetime):
+        params = {'sort': 'updatedAt,ASC', 'updatedAfter': updated_after.strftime("%Y-%m-%dT%H:%M:%S")}
+        for item in self._all_items('/api/articles', params):
             yield ApiArticle.from_data(item)
 
     def article_comments(self, article_id, page=0, size=20):
@@ -143,12 +147,14 @@ class ApiClient(object):
             raise ApiError('GET {} {}'.format(path, resp.status_code))
         return resp.json()
 
-    def _all_items(self, path: str, sort=None) -> typing.Iterator[dict]:
+    def _all_items(self, path: str, params: typing.Optional[dict] = None) -> typing.Iterator[dict]:
+        if params is None:
+            params = {}
         items_per_page = 200
         count = items_per_page
         page = 0
         while count == items_per_page:
-            items = self._get_list(path, {'page': page, 'size': items_per_page, 'sort': sort})
+            items = self._get_list(path, {**params, **{'page': page, 'size': items_per_page}})
             page = page + 1
             count = items["numberOfElements"]
             for item in items['content']:

@@ -25,27 +25,28 @@ class App(object):
             self.players_repository.add_player(player)
         logging.info("Done downloading players.")
 
-    def create_mentions(self):
-        action_summary = dict(articles=0, comments=0, mentions=0, start_time=time.time())
-        self.api_client.all_articles()
-        # TODO change for updateDate when it comes
-        for article in self.api_client.all_articles(sort='creationDate,ASC'):
-            action_summary['articles'] += 1
-            if article.creation_date <= self.state.create_mentions_last_checked:
+    def create_mentions(self) -> dict:
+        action_summary = dict(articles=0, comments=0, mentions=0, start_time=time.time(), duration=None)
+        current_updated_at = datetime.datetime.fromtimestamp(0)
+        for article in self.api_client.all_articles_updated_after(self.state.create_mentions_last_updated_at):
+            if article.updated_at < self.state.create_mentions_last_updated_at:
                 logging.debug("Skipping article {}".format(article.id))
                 continue
+            action_summary['articles'] += 1
             for comment in self.api_client.all_article_comments(article.id):
-                logging.debug("Checking comment {} of article {}".format(comment.id, article.id))
+                logging.debug("Checking comment {} of article {} updated at {}".format(comment.id, article.id, article.updated_at))
+                action_summary['comments'] += 1
                 for m in self.mention_finder.find_mentions(comment, article):
-                    action_summary['comments'] += 1
+                    action_summary['mentions'] += 1
                     self.__save_mention(m)
-            self.state.create_mentions_last_checked = article.update_date
-            logging.info("Done checking article {}".format(article.id))
-        logging.info("Checked {} article and {} comments. Found {} mentions in {} seconds.".format(
-            action_summary['articles'],
-            action_summary['comments'],
-            action_summary['mentions'],
-            time.time() - action_summary['start_time']))
+            if current_updated_at < article.updated_at:
+                # If we are done checking some updated_at value (many articles can have same updatedAt) we can save it
+                self.state.create_mentions_last_updated_at = article.updated_at
+                current_updated_at = article.updated_at
+            logging.info("Done checking article {} updated at {}".format(article.id, article.updated_at))
+        action_summary['duration'] = time.time() - action_summary['start_time']
+        logging.info("Finished create_mentions. Action summary: {}".format(action_summary))
+        return action_summary
 
     def clear_state(self):
         file_path = self.state.file_path
@@ -67,9 +68,8 @@ class App(object):
 class AppState(object):
     def __init__(self, file_path: str):
         self.file_path = file_path
-        self.create_mentions_last_checked = datetime.datetime.fromtimestamp(0)
+        self.create_mentions_last_updated_at = datetime.datetime.fromtimestamp(0)
         self.players = dict()
-
         self.load()
 
     def save(self):

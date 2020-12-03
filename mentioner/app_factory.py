@@ -1,15 +1,16 @@
 import os
 from mentioner.app import App
 from dotenv import load_dotenv
-load_dotenv()
 
 
-BBGH_BACKEND_URL = os.getenv("BBGH_BACKEND_URL")
-CACHE_DIR = dir_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__))) + "/cache"
+def create_app(load_env_file=True) -> App:
+    if load_env_file:
+        # load .env
+        load_dotenv()
+        # load .env.local
+        load_dotenv(os.path.join(os.path.dirname(__file__), '.env.local'))
 
-
-def create_app(
-        state_file="{}/app.pickle".format(CACHE_DIR),
-        api_url=BBGH_BACKEND_URL) -> App:
+    state_file = os.path.dirname(__file__) + "/../cache/app.pickle"
+    api_url = os.getenv("BBGH_BACKEND_URL")
 
     return App(state_file, api_url)
