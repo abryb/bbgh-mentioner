@@ -11,6 +11,8 @@ docker-compose build
 # run mentioner help
 docker-compose run --rm app
 docker-compose run --rm app mentioner --help
+# run same command as running in cron job
+docker-compose run --rm app mentioner run
 # download players
 docker-compose run --rm app mentioner download_players
 # create all mentions
@@ -19,8 +21,6 @@ docker-compose run --rm app mentioner create_mentions
 docker-compose run --rm app mentioner state_info
 # clear state
 docker-compose run --rm app mentioner clear_state
-# run same command as running in cron job
-docker-compose run --rm app mentioner run
 ```
 
 #### Interactive usage
