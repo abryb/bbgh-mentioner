@@ -22,11 +22,6 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
-COPY crontab /etc/cron.d/mentioner
-RUN apt-get -y --no-install-recommends install cron \
-    && chmod 0644 /etc/cron.d/mentioner \
-    && crontab /etc/cron.d/mentioner \
-    && touch /var/log/cron.log
 
 RUN rm -rf  /tmp/* && apt-get clean && rm -rf /var/lib/apt/lists/
 
@@ -37,4 +32,4 @@ RUN pip3 install -r requirements.txt
 
 ENV PATH="/app/bin:${PATH}"
 
-CMD ["mentioner", "--help"]
+CMD ['python', '-u', 'mentioner', 'run']

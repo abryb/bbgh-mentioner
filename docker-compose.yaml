@@ -4,4 +4,4 @@ services:
     build: .
     volumes:
       - .:/app:cached
-    command: ['cron', '-f']
+    restart: unless-stopped

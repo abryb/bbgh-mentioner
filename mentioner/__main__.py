@@ -3,6 +3,8 @@ import os
 import argparse
 import logging
 import datetime
+import schedule
+import time
 from dotenv import load_dotenv
 sys.path.append(".")
 from mentioner.app_factory import create_app
@@ -58,8 +60,14 @@ def run():
     try:
         if len(app.state.players) == 0:
             download_players()
-        create_mentions()
+
+        schedule.every(20).minutes.do(create_mentions)
+
+        while 1:
+            schedule.run_pending()
+            time.sleep(1)
     except KeyboardInterrupt:
+        app.state.save()
         writeln("\nAborted. Bye.")
 
 
@@ -81,7 +89,7 @@ if __name__ == '__main__':
     BBGH_BACKEND_URL = os.getenv("BBGH_BACKEND_URL")
     LOGGING_LEVEL = os.getenv("LOGGING_LEVEL")
 
-    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser = argparse.ArgumentParser()
     parser.add_argument('action', help='action to call', choices=actions.keys())
     parser.add_argument('--verbose', '-v', dest="verbose", help='Verbose output, -vv very verbose', action='count', default=0)
 

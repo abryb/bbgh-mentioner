@@ -2,3 +2,4 @@ requests
 python-dotenv
 Unidecode
 setuptools
+schedule
