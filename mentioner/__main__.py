@@ -58,14 +58,20 @@ def clear_state():
 
 def run():
     try:
+        # download players if needed
         if len(app.state.players) == 0:
             download_players()
 
+        # Create mentions immediately
+        create_mentions()
+
+        writeln("Setting schedule for create_mentions every 20 minutes.")
         schedule.every(20).minutes.do(create_mentions)
 
         while 1:
             schedule.run_pending()
             time.sleep(1)
+
     except KeyboardInterrupt:
         app.state.save()
         writeln("\nAborted. Bye.")

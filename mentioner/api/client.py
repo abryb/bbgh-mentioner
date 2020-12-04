@@ -96,6 +96,26 @@ class ApiMention(typing.NamedTuple):
         )
 
 
+class ApiMentionExpanded(typing.NamedTuple):
+    id: int
+    comment_id: int
+    player_id: int
+    sentiment: str
+    starts_at: int
+    ends_at: int
+
+    @staticmethod
+    def from_data(data: dict) -> 'ApiMentionExpanded':
+        return ApiMentionExpanded(
+            id=data['id'],
+            comment_id=data['commentId'],
+            player_id=data['playerId'],
+            sentiment=data['mentionSentiment'],
+            starts_at=data['startsAt'],
+            ends_at=data['endsAt']
+        )
+
+
 class ApiClient(object):
     def __init__(self, host):
         self.host = host
@@ -125,14 +145,14 @@ class ApiClient(object):
         for item in self._all_items('/api/comment/{}/mentions'.format(comment_id)):
             yield ApiMention.from_data(item)
 
-    def create_mention(self, comment_id: int, player_id: int, starts_at=0, ends_at=0) -> ApiMention:
+    def create_mention(self, comment_id: int, player_id: int, starts_at=0, ends_at=0) -> ApiMentionExpanded:
         r = self._post("/api/mentions", {
             "commentId": comment_id,
             "playerId": player_id,
             "startsAt": starts_at,
             "endsAt": ends_at
         })
-        return ApiMention.from_data(r)
+        return ApiMentionExpanded.from_data(r)
 
     def _post(self, path: str, json: dict):
         resp = requests.post(self.host + path, json=json)
