@@ -5,6 +5,9 @@ import logging
 import datetime
 import schedule
 import time
+import code
+import readline
+import rlcompleter
 from dotenv import load_dotenv
 sys.path.append(".")
 from mentioner.app_factory import create_app
@@ -82,7 +85,8 @@ actions = {
     "download_players": download_players,
     "create_mentions": create_mentions,
     "state_info": state_info,
-    "clear_state": clear_state
+    "clear_state": clear_state,
+    "console": None
 }
 
 
@@ -112,6 +116,14 @@ if __name__ == '__main__':
 
     app = create_app(load_env_file=False)
 
-    actions[action]()
+    if action == 'console':
+        context = globals().copy()
+        context.update(locals())
+        readline.set_completer(rlcompleter.Completer(context).complete)
+        readline.parse_and_bind("tab: complete")
+        shell = code.InteractiveConsole(context)
+        shell.interact()
+    else:
+        actions[action]()
 
     sys.exit(0)

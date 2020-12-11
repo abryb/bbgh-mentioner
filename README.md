@@ -25,14 +25,12 @@ docker-compose run --rm app mentioner clear_state
 
 #### Interactive usage
 ```shell script
-docker-compose run --rm app python
+docker-compose run --rm app mentioner console
 ```
 
 ```python
-import mentioner
-app = mentioner.create_app()
-app.download_players()
-app.create_mentions()
+>>> state_info()
+>>> app.state
 ```
 
 
