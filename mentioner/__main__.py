@@ -36,7 +36,7 @@ def create_mentions():
             action_summary['articles'],
             app.state.create_mentions_last_updated_at,
             action_summary['comments'],
-            action_summary['new_mentions'],
+            action_summary['mentions_new'],
             action_summary['mentions'],
             action_summary['duration']))
     except KeyboardInterrupt:
