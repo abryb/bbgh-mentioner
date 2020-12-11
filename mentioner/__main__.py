@@ -14,7 +14,7 @@ from mentioner.app_factory import create_app
 
 
 def writeln(message):
-    print("{}: {}".format(datetime.datetime.now(), message))
+    print(message)
 
 
 def download_players():
@@ -30,11 +30,11 @@ def download_players():
 
 def create_mentions():
     try:
-        writeln("Creating mentions for articles updated after {}".format(app.state.create_mentions_last_updated_at))
         action_summary = app.create_mentions()
         app.state.save()
-        writeln("Checked {} article and {} comments. Found {} new mentions from total {} found in {} seconds.".format(
+        writeln("Checked {} article updated after {}. Checked {} comments. Found {} new mentions from total {} found in {} seconds.".format(
             action_summary['articles'],
+            app.state.create_mentions_last_updated_at,
             action_summary['comments'],
             action_summary['new_mentions'],
             action_summary['mentions'],
