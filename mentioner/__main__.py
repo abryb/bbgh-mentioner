@@ -33,15 +33,22 @@ def create_mentions():
         writeln("Creating mentions for articles updated after {}".format(app.state.create_mentions_last_updated_at))
         action_summary = app.create_mentions()
         app.state.save()
-        writeln("Checked {} article and {} comments. Found {} mentions in {} seconds.".format(
+        writeln("Checked {} article and {} comments. Found {} new mentions from total {} found in {} seconds.".format(
             action_summary['articles'],
             action_summary['comments'],
+            action_summary['new_mentions'],
             action_summary['mentions'],
             action_summary['duration']))
     except KeyboardInterrupt:
         writeln("\nCanceled by user. Saving state...")
         app.state.save()
         writeln("Bye.")
+
+
+def create_mentions_from_beginning():
+    app.state.create_mentions_last_updated_at = datetime.datetime.fromtimestamp(0)
+    app.state.save()
+    create_mentions()
 
 
 def state_info():
@@ -86,6 +93,7 @@ actions = {
     "create_mentions": create_mentions,
     "state_info": state_info,
     "clear_state": clear_state,
+    "create_mentions_from_beginning": create_mentions_from_beginning,
     "console": None
 }
 

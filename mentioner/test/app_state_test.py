@@ -11,11 +11,11 @@ class AppStateTest(unittest.TestCase):
 
         app_state = AppState(state_file)
 
-        app_state.checked_articles = {1: {}, 2: {}}
+        app_state.some_property = 1
         app_state.save()
 
         app_state_2 = AppState(state_file)
-        self.assertEqual(len(app_state_2.checked_articles), 2)
+        self.assertEqual(app_state_2.some_property, 1)
 
 
 if __name__ == '__main__':

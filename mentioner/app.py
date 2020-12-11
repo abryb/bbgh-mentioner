@@ -26,7 +26,7 @@ class App(object):
         logging.info("Done downloading players.")
 
     def create_mentions(self) -> dict:
-        action_summary = dict(articles=0, comments=0, mentions=0, start_time=time.time(), duration=None)
+        action_summary = dict(articles=0, comments=0, mentions=0, mentions_new=0, start_time=time.time(), duration=None)
         current_updated_at = datetime.datetime.fromtimestamp(0)
         for article in self.api_client.all_articles_updated_after(self.state.create_mentions_last_updated_at):
             if article.updated_at < self.state.create_mentions_last_updated_at:
@@ -38,7 +38,8 @@ class App(object):
                 action_summary['comments'] += 1
                 for m in self.mention_finder.find_mentions(comment, article):
                     action_summary['mentions'] += 1
-                    self.__save_mention(m)
+                    if self.__save_mention(m):
+                        action_summary['mentions_new'] += 1
             if current_updated_at < article.updated_at:
                 # If we are done checking some updated_at value (many articles can have same updatedAt) we can save it
                 self.state.create_mentions_last_updated_at = article.updated_at
@@ -63,6 +64,7 @@ class App(object):
                 return False  # mention already exists
         logging.info("Saving mention {}".format(mention))
         self.api_client.create_mention(mention.comment_id, mention.player_id, mention.starts_at, mention.ends_at)
+        return True
 
 
 class AppState(object):
