@@ -49,7 +49,7 @@ class ApiComment(typing.NamedTuple):
         return ApiComment(
             id=data['id'],
             content=data['content'],
-            article_id=data['articleId']
+            article_id=data['articleId'] if 'articleId' in data else 0
         )
 
 
