@@ -32,9 +32,10 @@ def create_mentions():
     try:
         action_summary = app.create_mentions()
         app.state.save()
+        updated_after = app.state.create_mentions_last_updated_at
         writeln("Checked {} article updated after {}. Checked {} comments. Found {} new mentions from total {} found in {} seconds.".format(
             action_summary['articles'],
-            app.state.create_mentions_last_updated_at,
+            updated_after,
             action_summary['comments'],
             action_summary['mentions_new'],
             action_summary['mentions'],
