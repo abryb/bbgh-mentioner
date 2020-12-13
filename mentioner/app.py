@@ -49,6 +49,14 @@ class App(object):
         logging.info("Finished create_mentions. Action summary: {}".format(action_summary))
         return action_summary
 
+    def create_mentions_for_comment(self, comment_id: int):
+        comment = self.api_client.comment(comment_id)
+        article = self.api_client.article(comment.article_id)
+        mentions = self.mention_finder.find_mentions(comment, article)
+        for m in mentions:
+            print(m)
+            self.__save_mention(m)
+
     def clear_state(self):
         file_path = self.state.file_path
         if os.path.exists(file_path):

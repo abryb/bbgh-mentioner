@@ -42,12 +42,14 @@ class ApiArticle(typing.NamedTuple):
 class ApiComment(typing.NamedTuple):
     id: int
     content: str
+    article_id: int
 
     @staticmethod
     def from_data(data: dict) -> 'ApiComment':
         return ApiComment(
             id=data['id'],
-            content=data['content']
+            content=data['content'],
+            article_id=data['articleId']
         )
 
 
@@ -154,11 +156,25 @@ class ApiClient(object):
         })
         return ApiMentionExpanded.from_data(r)
 
+    def comment(self, id: int) -> ApiComment:
+        data = self._get("/api/comment/{}".format(id))
+        return ApiComment.from_data(data)
+
+    def article(self, id: int):
+        data = self._get("/api/articles/{}".format(id))
+        return ApiArticle.from_data(data)
+
     def _post(self, path: str, json: dict):
         resp = requests.post(self.host + path, json=json)
         if resp.status_code not in [200, 201]:
             raise ApiError('POST {} {} {}'.format(path, resp.status_code, resp.json()))
         return resp.json()
+
+    def _get(self, path: str):
+        r = requests.get(self.host + path)
+        if r.status_code not in [200]:
+            raise ApiError('GET {} {} {}'.format(path, r.status_code, r.json()))
+        return r.json()
 
     def _get_list(self, path: str, params) -> dict:
         resp = requests.get(self.host + path, params=params)
